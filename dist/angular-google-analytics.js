@@ -1,13 +1,22 @@
 /**
  * Angular Google Analytics - Easy tracking for your AngularJS application
- * @version v0.0.15 - 2015-04-27
+ * @version v0.0.15 - 2015-12-18
  * @link http://github.com/revolunet/angular-google-analytics
  * @author Julien Bouquillon <julien@revolunet.com>
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
 'use strict';
 
-angular.module('angular-google-analytics', [])
+angular.module('angular-google-analytics-config', [])
+  .service('GaConfig', function($http) {
+    this.getConfig = function(){ 
+      return $http.get('/config').then(function(response) {
+        return response.data.GA_ID;
+      });
+    };
+  });
+
+angular.module('angular-google-analytics', ['angular-google-analytics-config'])
   .provider('Analytics', function () {
     var created = false,
         trackRoutes = true,
@@ -125,9 +134,12 @@ angular.module('angular-google-analytics', [])
     /**
      * Public Service
      */
-    this.$get = ['$document', '$location', '$log', '$rootScope', '$window', function ($document, $location, $log, $rootScope, $window) {
+    this.$get = ['$document', '$location', '$log', '$rootScope', '$window', 'GaConfig', function ($document, $location, $log, $rootScope, $window, GaConfig) {
       var me = this;
-
+      GaConfig.getConfig().then(function(id) {
+        accountId = id;
+      });
+      
       var getUrl = function () {
         var url = trackUrlParams ? $location.url() : $location.path();
         return removeRegExp ? url.replace(removeRegExp, '') : url;
