@@ -7,6 +7,21 @@
  */
 'use strict';
 
+angular.module('angular-google-analytics-config', [])
+  .factory('GaConfig', function($http) {
+    var service = {
+      getConfig: getConfig
+    };
+
+    return service;
+
+    function getConfig() {
+      return $http.get('/config').then(function(response) {
+        return response.data.GA_ID;
+      });
+    }
+  });
+
 angular.module('angular-google-analytics', [])
   .provider('Analytics', function () {
     var created = false,
@@ -125,8 +140,12 @@ angular.module('angular-google-analytics', [])
     /**
      * Public Service
      */
-    this.$get = ['$document', '$location', '$log', '$rootScope', '$window', function ($document, $location, $log, $rootScope, $window) {
+    this.$get = ['$document', '$location', '$log', '$rootScope', '$window', 'GaConfig', function ($document, $location, $log, $rootScope, $window, GaConfig) {
       var me = this;
+      GaConfig.getConfig().then(function(id) {
+        accountId = id;
+        console.log(accountId);
+      });
 
       var getUrl = function () {
         var url = trackUrlParams ? $location.url() : $location.path();
