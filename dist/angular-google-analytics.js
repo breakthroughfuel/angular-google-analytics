@@ -8,13 +8,13 @@
 'use strict';
 
 angular.module('angular-google-analytics-config', [])
-  .service('GaConfig', function($http) {
+  .service('GaConfig', ['$http', function($http) {
     this.getConfig = function(){ 
       return $http.get('/config').then(function(response) {
         return response.data.GA_ID;
       });
     };
-  });
+  }]);
 
 angular.module('angular-google-analytics', ['angular-google-analytics-config'])
   .provider('Analytics', function () {
